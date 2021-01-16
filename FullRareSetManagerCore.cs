@@ -30,6 +30,7 @@ namespace FullRareSetManager
         private BaseSetPart[] _itemSetTypes;
         private StashData _sData;
         public ItemDisplayData[] DisplayData;
+        public FRSetManagerPublishInformation FrSetManagerPublishInformation;
         private bool _allowScanTabs = true;
         private Stopwatch _fixStopwatch = new Stopwatch();
 
@@ -84,6 +85,7 @@ namespace FullRareSetManager
 
             Settings.CalcByFreeSpace.OnValueChanged += delegate { UpdateItemsSetsInfo(); };
 
+            FrSetManagerPublishInformation = new FRSetManagerPublishInformation();
             //WorldItemsController.OnEntityAdded += args => EntityAdded(args.Entity);
             //WorldItemsController.OnEntityRemoved += args => EntityRemoved(args.Entity);
             //WorldItemsController.OnItemPicked += WorldItemsControllerOnOnItemPicked;
@@ -156,10 +158,66 @@ namespace FullRareSetManager
             _currentAlerts.Clear();
         }
 
+        public class ClassForPickit
+        {
+            public ItemDisplayData[] dataArray { get; set; }
+            public int MaxItemSet { get; set; }
+        }
+        public class FRSetManagerPublishInformation
+        {
+
+            public int GatheredWeapons { get; set; } = 0;
+            public int GatheredHelmets { get; set; } = 0;
+            public int GatheredBodyArmors { get; set; } = 0;
+            public int GatheredGloves { get; set; } = 0;
+            public int GatheredBoots { get; set; } = 0;
+            public int GatheredBelts { get; set; } = 0;
+            public int GatheredAmulets { get; set; } = 0;
+            public int GatheredRings { get; set; } = 0;
+
+            public int WantedSets { get; set; } = 0;
+        }
+
         public override void Render()
         {
             if (!GameController.Game.IngameState.InGame) return;
 
+            FrSetManagerPublishInformation.WantedSets = Settings.MaxSets.Value;
+            var rareSetData = _itemSetTypes;
+            for (int i = 0; i < rareSetData.Length; i++)
+            {
+                BaseSetPart itemDisplayData = rareSetData[i];
+                switch (itemDisplayData.PartName)
+                {
+                    case "Weapons":
+                        FrSetManagerPublishInformation.GatheredWeapons = itemDisplayData.TotalSetsCount();
+                        break;
+                    case "Helmets":
+                        FrSetManagerPublishInformation.GatheredHelmets = itemDisplayData.TotalSetsCount();
+                        break;
+                    case "Body Armors":
+                        FrSetManagerPublishInformation.GatheredBodyArmors = itemDisplayData.TotalSetsCount();
+                        break;
+                    case "Gloves":
+                        FrSetManagerPublishInformation.GatheredGloves = itemDisplayData.TotalSetsCount();
+                        break;
+                    case "Boots":
+                        FrSetManagerPublishInformation.GatheredBoots = itemDisplayData.TotalSetsCount();
+                        break;
+                    case "Belts":
+                        FrSetManagerPublishInformation.GatheredBelts = itemDisplayData.TotalSetsCount();
+                        break;
+                    case "Amulets":
+                        FrSetManagerPublishInformation.GatheredAmulets = itemDisplayData.TotalSetsCount();
+                        break;
+                    case "Rings":
+                        FrSetManagerPublishInformation.GatheredRings = itemDisplayData.TotalSetsCount();
+                        break;
+
+                }
+            }
+
+            PublishEvent("frsm_display_data", FrSetManagerPublishInformation);
             if (!_allowScanTabs)
             {
                 if (_fixStopwatch.ElapsedMilliseconds > 3000)
@@ -792,33 +850,33 @@ namespace FullRareSetManager
 
         private bool UpdatePlayerInventory()
         {
-            if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
-                return false;
+        //    if (!GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
+        //        return false;
 
-            var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory];
+            var inventory = GameController.Game.IngameState.ServerData.PlayerInventories[0].Inventory;
 
             if (_sData?.PlayerInventory == null)
                 return true;
 
             _sData.PlayerInventory = new StashTabData();
 
-            var invItems = inventory.VisibleInventoryItems;
+            var invItems = inventory;
 
             if (invItems == null) return true;
 
-            foreach (var invItem in invItems)
+            foreach (var invItem in invItems.InventorySlotItems)
             {
-                var item = invItem.Item;
-                var newAddedItem = ProcessItem(item);
+                var item = invItem;
+                var newAddedItem = ProcessItem(item.Item);
 
                 if (newAddedItem == null) continue;
-                newAddedItem.InventPosX = invItem.InventPosX;
-                newAddedItem.InventPosY = invItem.InventPosY;
+                newAddedItem.InventPosX = (int)invItem.InventoryPosition.X;
+                newAddedItem.InventPosY = (int)invItem.InventoryPosition.Y;
                 newAddedItem.BInPlayerInventory = true;
                 _sData.PlayerInventory.StashTabItems.Add(newAddedItem);
             }
 
-            _sData.PlayerInventory.ItemsCount = (int) inventory.ItemCount;
+            _sData.PlayerInventory.ItemsCount = (int) inventory.TotalItemsCounts;
 
             return true;
         }
