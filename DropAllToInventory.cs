@@ -70,7 +70,6 @@ namespace FullRareSetManager
 
                     //Thread.Sleep(200);
                     Thread.Sleep(latency + Settings.ExtraDelay);
-                    var brCounter = 0;
 
                     //while (1 == 2 && !dropDownTabElements.IsVisible)
                     //{
@@ -115,7 +114,7 @@ namespace FullRareSetManager
                 Mouse.SetCursorPosAndLeftClick(tabPos.Center + _clickWindowOffset, Settings.ExtraDelay);
                 Thread.Sleep(latency + Settings.ExtraDelay);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //BasePlugin.LogError($"Error in GoToTab {tabIndex}: {e.Message}", 5);
                 return false;
