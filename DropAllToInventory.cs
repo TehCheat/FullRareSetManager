@@ -96,8 +96,8 @@ namespace FullRareSetManager
                 // 1 is the name of the tab.
                 // 2 is the slider.
                 var totalStashes = GameController.Game.IngameState.IngameUi.StashElement.TotalStashes;
-                var slider = dropDownTabElements.Children[1].ChildCount == totalStashes;
-                var noSlider = dropDownTabElements.Children[2].ChildCount == totalStashes;
+                var slider = false;// dropDownTabElements.Children[1].ChildCount == totalStashes;
+                var noSlider = true;// dropDownTabElements.Children[2].ChildCount == totalStashes;
                 RectangleF tabPos;
 
                 if (slider)

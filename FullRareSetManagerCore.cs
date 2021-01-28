@@ -290,12 +290,11 @@ namespace FullRareSetManager
                     LogMessage("Error: npcTradingWindow is not visible (opened)!", 5);
                 }
 
-                var playerOfferItems = npcTradingWindow.Children[0];
+                var playerOfferItems = npcTradingWindow.YourOffer;
                 const int setItemsCount = 9;
                 const int uiButtonsCount = 2;
 
-                LogMessage($"Player has put in {playerOfferItems.ChildCount - uiButtonsCount} in the trading window.",
-                    3);
+                LogMessage($"Player has put in {playerOfferItems.ChildCount - uiButtonsCount} in the trading window.", 3);
 
                 if (playerOfferItems.ChildCount < setItemsCount + uiButtonsCount)
                 {
@@ -305,7 +304,7 @@ namespace FullRareSetManager
                         var items = itemType.GetPreparedItems();
 
                         if (items.Any(item => !item.BInPlayerInventory))
-                            return;
+                            continue;
 
                         Keyboard.KeyDown(Keys.LControlKey);
 
